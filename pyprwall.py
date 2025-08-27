@@ -12,10 +12,10 @@ from gi.repository import Gtk, Gio, Gdk, GdkPixbuf, GObject, Adw, Pango # MODIFI
 import threading
 from gi.repository import GLib
 
-# Increased thumbnail size for better visibility
+# To customize the thumbnail size
 THUMB_WIDTH = 320
 THUMB_HEIGHT = 200
-MAX_CHILDREN_PER_LINE = 5  # Increased from 4 to accommodate larger thumbnails
+MAX_CHILDREN_PER_LINE = 5  
 LABEL_MAX_CHARS = 30
 
 class WallpaperManager(Adw.Application):
@@ -30,7 +30,7 @@ class WallpaperManager(Adw.Application):
         self.current_wallpaper = None
         self.thumbnails = {}
         
-    # Use a config file in the project folder for last folder
+        # Use a config file in the project folder for last folder
         self.config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.pyprwall_config')
         
         # Create directories if they don't exist
