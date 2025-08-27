@@ -13,6 +13,12 @@ PyprWall is a GTK4-based wallpaper manager specifically designed for Hyprland co
 - Persistent memory of last used folder
 - Clean, modern GTK4 interface
 
+## Screenshot
+
+Below is a screenshot of PyprWall in action:
+
+![PyprWall Screenshot](Assets/image.png)
+
 ## Dependencies
 
 PyprWall requires the following dependencies:
