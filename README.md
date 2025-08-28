@@ -38,6 +38,20 @@ PyprWall requires the following dependencies:
 
 ## Installation
 
+### From the AUR (Arch Linux)
+
+PyprWall is available in the AUR. You can install it using your favorite AUR helper:
+
+**With yay:**
+```bash
+yay -S pyprwall
+```
+
+**With paru:**
+```bash
+paru -S pyprwall
+```
+
 ### From Source
 
 1. Clone or download the PyprWall repository
