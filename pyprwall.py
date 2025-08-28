@@ -7,7 +7,7 @@ gi.require_version('Gdk', '4.0')
 import subprocess
 import shutil
 from pathlib import Path
-from gi.repository import Gtk, Gio, Gdk, GdkPixbuf, GObject, Adw, Pango # MODIFIED: Added Pango
+from gi.repository import Gtk, Gio, Gdk, GdkPixbuf, GObject, Adw, Pango
 
 import threading
 from gi.repository import GLib
@@ -15,7 +15,7 @@ from gi.repository import GLib
 # To customize the thumbnail size
 THUMB_WIDTH = 320
 THUMB_HEIGHT = 200
-MAX_CHILDREN_PER_LINE = 5  
+MAX_CHILDREN_PER_LINE = 5
 LABEL_MAX_CHARS = 30
 
 class WallpaperManager(Adw.Application):
@@ -309,41 +309,42 @@ class WallpaperManager(Adw.Application):
             return
             
         try:
-            # Apply to hyprpaper
-            self.apply_hyprpaper_wallpaper()
+            # Always update the hyprpaper config first for persistence
+            self.update_hyprpaper_config()
             
-            # Apply to hyprlock
+            # Then, try to apply via IPC for an immediate change
+            self.apply_hyprpaper_via_ipc()
+
+            # Always update the hyprlock config for persistence and then restart hyprlock
             self.apply_hyprlock_wallpaper()
+            subprocess.run(["pkill", "hyprlock"])
             
             self.status_label.set_label(f"Applied {os.path.basename(self.current_wallpaper)} to desktop and lockscreen!")
             
         except Exception as e:
             self.status_label.set_label(f"Error applying wallpaper: {e}")
 
-    def apply_hyprpaper_wallpaper(self):
-        """Apply wallpaper to hyprpaper using IPC command"""
+    def apply_hyprpaper_via_ipc(self):
+        """Try applying wallpaper to hyprpaper using IPC commands."""
         try:
-            # Try using hyprctl IPC first (faster and more reliable)
-            result = subprocess.run([
+            # Preload the new wallpaper
+            subprocess.run([
                 "hyprctl", "hyprpaper", "preload", 
                 f"{self.current_wallpaper}"
-            ], capture_output=True, text=True, timeout=10)
+            ], check=True, text=True, timeout=10)
 
-            result = subprocess.run([
+            # Set the wallpaper
+            subprocess.run([
                 "hyprctl", "hyprpaper", "wallpaper", 
                 f",{self.current_wallpaper}"
-            ], capture_output=True, text=True, timeout=10)
-
-            if result.returncode != 0:
-                raise Exception(f"hyprctl failed: {result.stderr}")
+            ], check=True, text=True, timeout=10)
                 
-        except (FileNotFoundError, subprocess.TimeoutExpired, Exception) as e:
-            # Fall back to config file method
-            print(f"IPC method failed, falling back to config file: {e}")
-            self.update_hyprpaper_config()
+        except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired, Exception) as e:
+            print(f"IPC method failed: {e}. The config file has been updated for persistence.")
+            # No further action needed as update_hyprpaper_config() was already called.
 
     def update_hyprpaper_config(self):
-        """Update hyprpaper config file with new wallpaper"""
+        """Update hyprpaper config file with new wallpaper."""
         config_content = []
         
         # Read existing config if it exists
@@ -354,7 +355,8 @@ class WallpaperManager(Adw.Application):
         # Remove existing preload and wallpaper lines
         new_content = []
         for line in config_content:
-            if not line.strip().startswith(('preload', 'wallpaper')):
+            stripped_line = line.strip()
+            if not stripped_line.startswith(('preload =', 'wallpaper =')):
                 new_content.append(line)
         
         # Add new wallpaper configuration
@@ -365,8 +367,8 @@ class WallpaperManager(Adw.Application):
         with open(self.hyprpaper_conf, 'w') as f:
             f.writelines(new_content)
         
-        # Restart hyprpaper to apply changes
-        subprocess.run(["pkill", "-SIGUSR2", "hyprpaper"])
+        # NOTE: We no longer pkill -SIGUSR2 here. The IPC command handles immediate change.
+        # This is for persistence only.
 
     def apply_hyprlock_wallpaper(self):
         """
