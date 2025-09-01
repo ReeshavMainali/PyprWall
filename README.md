@@ -12,6 +12,8 @@ PyprWall is a GTK4-based wallpaper manager specifically designed for Hyprland co
 - One-click application to both desktop and lockscreen
 - Persistent memory of last used folder
 - Clean, modern GTK4 interface
+- Automatic wallpaper cycling with configurable interval
+- Can run as a background daemon (for cycling) and integrates with systemd user services
 
 ## Screenshot
 
@@ -112,6 +114,24 @@ chmod +x ~/.local/share/applications/pyprwall.desktop
 3. Select a wallpaper from the thumbnail grid
 4. Use "Preview" to see a larger version of the selected wallpaper
 5. Click "Apply to Desktop & Lockscreen" to set the wallpaper
+
+## Daemon Mode & Wallpaper Cycling
+
+PyprWall can automatically cycle wallpapers at a configurable interval. You can run it in background (daemon) mode, which is ideal for use with systemd user services.
+
+### Run as a Daemon
+
+To start PyprWall in daemon-only mode (no GUI, just cycling):
+
+```bash
+./pyprwall.py --cycle-daemon
+```
+
+### Systemd Integration
+
+PyprWall can generate a systemd user service for automatic wallpaper cycling. Look for the 'Create systemd service' option in the app, or refer to the documentation in the script for details.
+
+This allows wallpapers to be cycled automatically in the background, even after logout/login.
 
 ## Backend Support
 
