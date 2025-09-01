@@ -127,6 +127,18 @@ To start PyprWall in daemon-only mode (no GUI, just cycling):
 ./pyprwall.py --cycle-daemon
 ```
 
+If for some reason the "Auto Start" button in the app doesnot work or cycling is not running after the GUI closes run the following commands
+
+```bash
+systemctl --user enable --now pyprwall.service
+```
+
+And if the updated cycle settings are not being applied to the service run this command 
+
+```bash
+systemctl --user restart pyprwall.service
+```
+
 ### Systemd Integration
 
 PyprWall can generate a systemd user service for automatic wallpaper cycling. Look for the 'Create systemd service' option in the app, or refer to the documentation in the script for details.
